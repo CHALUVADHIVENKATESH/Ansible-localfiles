@@ -1,0 +1,6 @@
+[allseervers]
+
+3.142.130.155 ansible_connection=ssh ansible_user=ubuntu ansible_port=22
+18.224.58.128 ansible_connection=ssh ansible_user=ubuntu ansible_port=22
+13.59.204.206 ansible_connection=ssh ansible_user=ubuntu ansible_port=22
+
