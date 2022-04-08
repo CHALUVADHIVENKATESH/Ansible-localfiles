@@ -1,0 +1,71 @@
+---
+  - name: Play for Install Nginx on WebServers using jinja
+    hosts: allservers
+    gather_facts: no
+    become: yes
+    become_user: root
+    vars:
+      custom_heading: "Welcome To DevOps B17 Batch Training By Sreeharsha Veerapalli"
+      todays_date: "{{ ansible_facts['date_time']['date'] }}"
+      host_name: "{{ ansible_facts['hostname'] }}"
+      fqdn_name: "{{ ansible_facts['fqdn'] }}"
+      os_family: "{{ ansible_facts['distribution'] }}"
+      os_dest: "{{ ansible_facts['distribution_version'] }}"
+      ip_address: "{{ ansible_facts['eth0']['ipv4']['address'] }}"
+    tasks:
+       - name: Run Apt Update
+         shell: apt update
+       - name: Install Nginx Server
+         apt: >
+           name=nginx
+           state=present
+       - name: Copy the index.j2 Template to index destination folder.
+         template: >
+            src=/root/terraformsingleinstance/jinja/index.j2
+            dest=/var/www/html/index.nginx-debian.html
+            owner=root
+            group=root
+            mode=0644
+         ignore_errors: yes #Will Proceed to next task even it failed.
+         tags:
+           - index
+         notify:
+            - restart nginx
+       
+
+       - name: Copy the style files to destination folder.
+         copy: >
+            src=/root/terraformsingleinstance/jinja/style.css
+            dest=/var/www/html/style.css
+            owner=root
+            group=root
+            mode=0644
+         ignore_errors: yes #Will Proceed to next task even it failed.
+         tags:
+           - index
+         notify:
+            - restart nginx
+       
+
+       - name: Copy the javascript files to destination folder.
+         copy: >
+            src=/root/terraformsingleinstance/jinja/scorekeeper.js
+            dest=/var/www/html/scorekeeper.js
+            owner=root
+            group=root
+            mode=0644
+         ignore_errors: yes #Will Proceed to next task even it failed.
+         tags:
+           - index
+         notify:
+             - restart nginx
+       
+       - name: restart nginx
+         command: service nginx restart
+    handlers:
+      - name: restart nginx
+        command: service nginx restart
+      
+         
+         
+         
