@@ -4,10 +4,7 @@
     gather_facts: no
     become: yes
     become_user: root
-    pre_tasks:
-     - name: Adding delay for 15 sec
-       wait_for:
-       delay: 15
+    
     tasks:
        - name: Run Apt Update
          shell: apt update
@@ -37,6 +34,9 @@
          ignore_errors: yes #Will Proceed to next task even it failed.
          tags:
            - index
+         notify:
+            - restart nginx
+            - create testfolder in tmp
 
        - name: Copy the style files to  destination folder.
          copy: >
@@ -48,6 +48,10 @@
             mode=0644
          tags:
            - style
+         notify:
+            - restart nginx
+            - create testfolder in tmp
+
 
        - name: Copy the javascript files to  destination folder.
          copy: >
@@ -59,14 +63,22 @@
             mode=0644
          tags:
            - js
-
-       - name: restart nginx
-         command: service nginx restart
-         tags:
-          - restart
+         notify:
+            - restart nginx
+            - create testfolder in tmp
 
        - name: Delete Git Repo
          shell: rm -rf /tmp/dockertest1
          tags:
           - delete
-         
+         notify:
+            - restart nginx
+            - create testfolder in tmp
+    handlers:
+      - name: restart nginx
+        command: service nginx restart
+      - name: create testfolder in tmp
+        shell:
+         rm -rf /tmp/testfolder
+         mkdir /tmp/testfolder
+         echo 'Welcome To Ansible Handler' >> /tmp/testfolder/testfile
